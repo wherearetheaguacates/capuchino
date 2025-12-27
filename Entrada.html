@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lector Aelyon</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Georgia, serif;
+      background: radial-gradient(circle at top, #2b0a3d, #0b0f2a 60%, #050714);
+      color: #e6e9ff;
+    }
+
+    .menu {
+      display: flex;
+      height: 100vh;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 24px;
+      background: radial-gradient(circle at center, rgba(120,90,255,0.15), transparent 60%);
+    }
+
+    button {
+      padding: 16px 44px;
+      font-size: 18px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #5f7cff, #8b5cf6);
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      box-shadow: 0 0 25px rgba(120,90,255,0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 35px rgba(140,120,255,0.6);
+    }
+
+    .chapters {
+      display: none;
+      padding: 40px 20px;
+      background: linear-gradient(180deg, #120a2a, #070a18);
+    }
+
+    .chapter {
+      margin-bottom: 16px;
+      padding: 22px;
+      border-left: 4px solid #8b5cf6;
+      background: rgba(80,60,160,0.15);
+      backdrop-filter: blur(6px);
+      cursor: pointer;
+      border-radius: 10px;
+      transition: background 0.2s ease;
+    }
+
+    .chapter:hover {
+      background: rgba(120,90,255,0.25);
+    }
+
+    .reader {
+      display: none;
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
+      height: 100vh;
+      overflow-y: auto;
+      background: linear-gradient(180deg, #0b0f2a, #050714);
+    }
+
+    .back {
+      margin-bottom: 20px;
+      cursor: pointer;
+      color: #9aa7ff;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+
+    .back:hover {
+      text-shadow: 0 0 10px rgba(150,140,255,0.8);
+    }
+
+    .book {
+      display: flex;
+      width: 100%;
+      max-width: 900px;
+      margin: auto;
+      background: #222;
+      box-shadow: 0 20px 40px rgba(0,0,0,.6);
+      flex-direction: column;
+    }
+
+    .scroll-page {
+      background: linear-gradient(180deg, #f4f6ff, #e8ebff);
+      color: #0b0f2a;
+      padding: 48px 64px;
+      font-size: 19px;
+      line-height: 1.75;
+      border-radius: 18px;
+      box-shadow: 0 0 40px rgba(120,90,255,0.35);
+      white-space: pre-line;
+    }
+
+    .page {
+      width: 50%;
+      padding: 24px;
+      box-sizing: border-box;
+      background: #f5f5f5;
+      color: #111;
+      overflow: hidden;
+      font-size: 18px;
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+
+    .left {
+      border-right: 1px solid #ddd;
+    }
+
+    .nav {
+      margin-top: 16px;
+      text-align: center;
+    }
+
+    #measurePage {
+      position: absolute;
+      visibility: hidden;
+      width: 50%;
+      padding: 24px;
+      font-size: 18px;
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+  </style>
+</head>
+<body>
+
+<div class="menu" id="menu">
+  <h1>AELYON</h1>
+  <button id="btnLeer">📖 Leer libro</button>
+  <button disabled>🎧 Audio libro</button>
+</div>
+
+<div class="chapters" id="chapters">
+  <div class="back" id="btnVolverMenu">← Volver</div>
+  <h2>Capítulos</h2>
+  <div class="chapter" data-chapter="1">Capítulo 1 · Variables constantes</div>
+  <div class="chapter" data-chapter="2">Capítulo 2 · Las cosas que se dicen para no decirlo todo</div>
+  <div class="chapter" data-chapter="3">Capítulo 3 · Ecos en la superficie</div>
+  <div class="chapter" data-chapter="4">Capítulo 4 · Desviaciones mínimas</div>
+  <div class="chapter" data-chapter="5">Capítulo 5 · El peso de lo estable</div>
+  <div class="chapter" data-chapter="6">Capítulo 6 · Cuando algo se mueve</div>
+  <div class="chapter" data-chapter="7">Capítulo 7 · Ruido en el sistema</div>
+  <div class="chapter" data-chapter="8">Capítulo 8 · Fuera de rango</div>
+  <div class="chapter" data-chapter="9">Capítulo 9 · Lo que no puede medirse</div>
+  <div class="chapter" data-chapter="10">Capítulo 10 · Las constantes cambian</div>
+  <div class="chapter" data-chapter="11">Capítulo 11 · Lo que no se reporta</div>  
+  <div class="chapter" data-chapter="12">Capítulo 12 · La estabilidad como costumbre</div>
+  <div class="chapter" data-chapter="13">Capítulo 13 · Lo que se mantiene sin sostenerse</div>
+  <div class="chapter" data-chapter="14">Capítulo 14 · La forma correcta de no decir las cosas</div>
+  <div class="chapter" data-chapter="15">Capítulo 15 · La estabilidad como coartada</div>
+  <div class="chapter" data-chapter="16">Capítulo 16 · Lo que no se rompe, se tensa</div>
+  <div class="chapter" data-chapter="17">Capítulo 17 · La forma correcta de seguir</div>
+  <div class="chapter" data-chapter="18">Capítulo 18 · Lo que no se corrige</div>
+  <div class="chapter" data-chapter="19">Capítulo 19 · La estabilidad como costumbre</div>
+  <div class="chapter" data-chapter="20">Capítulo 20 · Lo que no se nombra</div>
+</div>
+
+<div class="reader" id="reader">
+  <div class="back" id="btnVolverCapitulos">← Capítulos</div>
+  <div class="book">
+    <div class="scroll-page" id="scrollPage"></div>
+  </div>
+  <div class="page" id="rightPage"></div>
+</div>
+
+<div id="measurePage"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+emailjs.init('DUC255huce7FveHgW');
+
+function sendNotification(action) {
+  emailjs.send('service_o7hp8li', 'template_m23ntvi', {
+    action: action,
+    timestamp: new Date().toLocaleString(),
+    user_agent: navigator.userAgent
+  }).catch(err => console.error('EmailJS error', err));
+}
+
+/* Texto de ejemplo para los capítulos. Reemplazar con el contenido real. */
+const chapterTexts = {
+  1: `Aelyon despertaba siempre a la misma hora.
+No había un amanecer impreciso ni un margen de error en la luz. El violeta ascendía desde el horizonte con una regularidad tan exacta que nadie necesitaba mirarlo para saber en qué punto del ciclo se encontraba. El planeta no sorprendía. Cumplía.
+Kael abrió los ojos antes de que la luz alcanzara su nivel óptimo. No fue un impulso. Fue un cálculo repetido durante años, afinado hasta convertirse en reflejo. Ajustar su despertar diez pulsos antes le permitía atravesar la transición del sueño a la vigilia sin fricción.
+La fricción, había aprendido, era donde comenzaban los errores.
+Se incorporó y permaneció sentado unos segundos, inmóvil, dejando que su respiración se estabilizara en el ritmo esperado. No pensó en nada. Pensar demasiado temprano introducía variables innecesarias.
+Su vivienda era funcional. No mínima, pero cercana. Superficies limpias, geometría clara, tonos fríos. Todo estaba donde debía estar porque no había motivo para moverlo. El orden no era una preferencia. Era una forma de reducir el ruido.
+Pasó la mano por el panel de diagnóstico personal. Los indicadores aparecieron flotando frente a él, uno tras otro, obedientes.
+Ritmo cognitivo: estable.
+Respuesta emocional basal: dentro de rango.
+Meñique: azul grisáceo uniforme.
+Kael observó ese último parámetro un segundo más de lo necesario. Luego asintió para sí.
+—Correcto.
+En la zona común, su padre ya estaba despierto. Rael ocupaba el centro del espacio como si el lugar hubiera sido diseñado alrededor de él. No alzó la vista del informe holográfico cuando Kael entró.
+—Terminaste el análisis nocturno —dijo, sin inflexión interrogativa.
+—Sí —respondió Kael—. Actualicé el modelo general de estabilidad planetaria. No hay desviaciones relevantes.
+Rael hizo un gesto mínimo de aprobación.
+—Eso es bueno. Aelyon necesita continuidad.
+Kael se sirvió una bebida luminosa. Bebió despacio.
+—¿Volverás hoy para la cena?
+La pregunta fue directa. No emocional.
+Rael tardó un segundo en responder.
+—No. El Consejo solicitó una extensión de la sesión.
+Kael asintió. No había decepción visible. Solo registro.
+—Entiendo.
+No era resignación. Era coherencia. Las prioridades estaban claras y siempre lo habían estado.
+Salió de la vivienda sin detenerse. El murmullo constante del planeta atravesaba las paredes, ese sonido cristalino que los Lunaris aprendían a ignorar desde niños. Kael no lo ignoraba. Lo utilizaba como referencia. Si el murmullo permanecía uniforme, el sistema general seguía funcionando.
+Su vehículo personal lo esperaba donde siempre. Kael evitaba el transporte compartido. Demasiadas personas implicaban demasiadas variables no cuantificables. El auto respondía solo a él, deslizándose por las plataformas suspendidas con una suavidad exacta.
+Desde arriba, Aelyon parecía perfecto.
+Las estructuras semiorgánicas se alineaban con la topografía viva del planeta. Nada sobresalía. Nada faltaba. Las tres lunas mantenían su danza precisa, cada una en su trayecto calculado, sosteniendo mareas, corrientes internas y flujos energéticos.
+Kael observó todo con una calma casi reverente.
+El laboratorio central emergía del paisaje como una prolongación natural del suelo. No imponía su presencia. Encajaba.
+Dentro, el ambiente era silencioso sin ser vacío. Interfaces activas, datos flotando, técnicos desplazándose con eficiencia discreta. Kael saludó con leves inclinaciones de cabeza. No necesitaba más.
+Émrik lo interceptó cerca del núcleo de datos.
+—Llegaste antes otra vez —comentó, sin reproche.
+—La anticipación reduce el margen de error —respondió Kael.
+—Algún día vas a descubrir que el margen cero no existe.
+Kael no contestó. No porque no tuviera respuesta, sino porque la afirmación no era útil.
+Se sumergió en el trabajo con facilidad. Modelos matemáticos, proyecciones de estabilidad, mapas dinámicos del equilibrio planetario. Cada dato tenía un lugar. Cada fluctuación encontraba una explicación.
+—Variación mínima en la luna sur —murmuró—. Punto cero dos. No relevante.
+Émrik observaba desde otra estación.
+—Los registros de campo coinciden —dijo—. Nada se mueve fuera de lo esperado.
+Eso era lo importante. Que nada se moviera demasiado.
+Durante ciclos enteros, Aelyon fue una ecuación legible. Kael integró datos, ajustó parámetros, cerró modelos. El planeta respondía. Siempre respondía.
+Al finalizar la jornada, envió su informe al núcleo central. Cerró el sistema. Se detuvo un instante antes de marcharse.
+Miró el cielo a través del domo transparente.
+Las lunas seguían ahí. El murmullo era constante. No había grietas visibles. No había anomalías.
+Todo funcionaba.
+Kael respiró hondo y permitió que esa certeza se asentara en su cuerpo como una ley física
+Mientras Aelyon siguiera siendo comprensible, él también lo sería.
+No sabía —todavía— que incluso los sistemas más estables no fallan por exceso de caos,
+sino por la presión silenciosa de sostenerlo todo sin fisuras.
+`,
+  2: `Nira despertó cuando la luz ya había entrado en la habitación.
+No tarde. Solo después.
+ Siempre después.
+Aelyon no la apuraba. El violeta se filtraba por los ventanales con la paciencia de algo que sabía que sería aceptado tarde o temprano. La luz no exigía atención. Solo estaba ahí, ocupando su lugar con una corrección casi irritante.
+Nira abrió los ojos y se quedó quieta unos segundos, observando cómo el brillo se deslizaba por el techo semiorgánico. No pensaba en nada concreto. Pensar demasiado temprano la dejaba con la sensación de haber dicho algo que todavía no quería decir.
+Apoyó los pies descalzos sobre el suelo líquido suspendido. La superficie respondió con una ondulación leve, casi afectuosa. Nira dejó que ese movimiento terminara antes de ponerse de pie.
+—Tranquilo —murmuró, sin saber bien a quién se dirigía.
+Su habitación no seguía ninguna lógica evidente. Había objetos acumulados sin orden claro: cuadernos con anotaciones a medias, fragmentos minerales, sensores antiguos que ya no funcionaban pero que conservaba igual. Nada estaba ahí por utilidad inmediata. Todo tenía una razón que no necesitaba explicar.
+Se miró en el reflejo difuso del muro. Piel violeta pálida. Ojos lila, atentos incluso en reposo. El cabello turquesa caía sin obedecer del todo. No lo corrigió.
+El meñique seguía gris.
+No era algo que mirara con frecuencia. Los colores cambiaban cuando tenían que cambiar. Observarlos demasiado era una forma de presionarlos.
+En la zona común, su madre estaba despierta. Preparaba el desayuno sintético con movimientos exactos, repetidos tantas veces que ya no necesitaban intención.
+—Te levantaste tarde —dijo, sin girarse.
+—No —respondió Nira—. A tiempo.
+No era una contradicción. Era una diferencia de criterios.
+Su madre dejó el módulo de preparación y la observó con atención medida. Esa clase de atención que no busca pelea, pero tampoco se retira.
+—Hoy también trabajas en el laboratorio central.
+—Como siempre.
+—Antes no pasabas tanto tiempo ahí.
+Nira tomó su bebida y bebió un sorbo pequeño antes de contestar.
+—Las cosas se mueven —dijo—. Aunque parezca que no.
+Su madre no respondió. Asintió apenas, como si hubiera escuchado algo que no terminaba de convencerla.
+Nira se despidió sin dramatismo y salió. El murmullo del planeta la envolvió de inmediato. No lo usaba como referencia, como hacían otros. Lo dejaba pasar a través de ella. Era más fácil así.
+El transporte público llegó puntual. Subió y eligió un asiento junto a la ventana. Le gustaba observar a la gente sin tener que participar. Los Lunaris compartían espacio con una cercanía silenciosa, cada uno envuelto en su propio equilibrio.
+Desde ahí, Aelyon se veía distinta.
+Menos perfecta. Más viva.
+Las superficies líquidas del suelo reflejaban el cielo con pequeñas distorsiones. Nada grave. Nada digno de corrección. Solo irregularidades suficientes para recordar que el planeta no era una maqueta.
+En la Estación Central, el ritmo era constante. Voces superpuestas, luces flotando en patrones funcionales, pantallas que se activaban y desactivaban con precisión casi orgánica.
+Nira saludó a varios colegas sin detenerse demasiado. Se apoyó junto a Liraen frente a un módulo de análisis vegetal.
+—Las raíces están reaccionando antes de que cambie la presión —comentó él.
+—No reaccionan —corrigió Nira—. Se adelantan.
+Liraen sonrió, resignado.
+—Eso no es técnicamente correcto.
+—Tampoco es incorrecto —respondió ella.
+Más adelante, Seris insistía en una lectura energética que no terminaba de encajar.
+—Estás forzando el patrón —le dijo Nira—. No todo quiere alinearse.
+—Todo se alinea si sabes mirar —replicó él.
+—O si aceptas que no todo quiere decirte algo claro.
+Discutieron un rato. Nada serio. Nira hablaba, objetaba, reía. Nunca se quedaba callada.
+No porque fuera impulsiva, sino porque el silencio absoluto le parecía una forma lenta de desaparecer.
+Durante la jornada, se dedicó a observar lo que no aparecía en los informes principales. Micro-variaciones en la atmósfera. Cambios mínimos en la respuesta emocional colectiva. Pequeñas incomodidades que nadie sabía nombrar porque no eran peligrosas.
+Nada alarmante.
+ Nada urgente.
+ Pero algo… desplazado.
+Lo anotó en su cuaderno personal. No en los reportes oficiales.
+Al salir del laboratorio, se quedó un rato más con sus amigos. Hablaron de cosas pequeñas. Anécdotas sin peso. Comentarios que no comprometían nada. Eso la tranquilizaba.
+El bus llegó puntual. Subió. Observó su reflejo en la ventana mientras la ciudad pasaba.
+Pensó, sin profundizar, que Aelyon funcionaba demasiado bien como para no sentirse, a veces, un poco apretado.
+Cuando llegó a casa, la luz interior ya estaba atenuada. Su madre la esperaba en la zona común.
+—Llegas tarde —dijo.
+—Me quedé hablando un rato después del trabajo —respondió Nira—. Nada fuera de lo normal.
+Su madre la observó con detenimiento. No con enojo. Con algo más cercano a la inquietud.
+—Antes no lo hacías tanto.
+Nira se encogió de hombros.
+—Las cosas cambian.
+No fue una discusión. Fue una grieta pequeña. Silenciosa. Suficiente para sentirse.
+Se retiró a su habitación y abrió uno de sus cuadernos. Escribió frases sueltas. No pensamientos completos. No conclusiones.
+Lo que digo.
+ Lo que omito.
+ Lo que no digo para no romperlo.
+Cerró el cuaderno. Apagó la luz.
+Aelyon seguía respirando con calma afuera.
+Y Nira, que hablaba casi todo el tiempo, sabía que lo importante no estaba en lo que decía,
+ sino en lo que aún no se atrevía a nombrar.
+`,
+ 
+  3: `La grieta no apareció de golpe.
+Eso fue lo que más desconcertó a quienes luego intentaron explicar el momento. No hubo alarma, ni pulso violento en el cielo, ni ruptura sonora. Simplemente, en algún punto entre un ciclo y otro, el violeta habitual de Aelyon dejó de ser continuo.
+Una línea estaba ahí.
+No atravesaba el cielo. No lo partía en dos. Era más bien una interrupción mínima, como si alguien hubiera detenido un trazo antes de terminarlo. Una franja de luz distinta, inmóvil, suspendida sin intención aparente.
+Aelyon no reaccionó con pánico.
+ Reaccionó con atención.
+En la Estación Central, la actividad aumentó sin volverse caótica. Nuevos informes. Ajustes de agenda. Voces que se cruzaban sin elevarse demasiado. Nadie hablaba de peligro. Nadie usaba esa palabra todavía.
+Nira estaba sentada sobre una de las mesas altas de la sala de reuniones, balanceando ligeramente los pies mientras escuchaba a la directora.
+—No hay indicios de colapso —decía ella—. Tampoco de expansión. La grieta no responde como una anomalía clásica.
+—¿Origen? —preguntó alguien desde el fondo.
+—Indeterminado.
+Ese murmullo sí fue distinto.
+—Por eso vamos a reorganizar los equipos —continuó la directora—. Necesitamos lecturas cruzadas. No solo cálculos estructurales.
+Nira se enderezó apenas.
+—¿Lectura perceptiva? —preguntó Liraen en voz baja, inclinándose hacia ella.
+—Eso suena a que nos van a pedir que opinemos sin datos cerrados —respondió Nira—. Me gusta.
+La directora siguió hablando.
+—Algunos de ustedes trabajarán con cartografía matemática directa. Otros, con observación ambiental continua. La grieta no se comporta como algo que quiera ser entendido rápido.
+Nira alzó una ceja. Eso le pareció honesto.
+Kael no estaba en esa sala.
+No porque no fuera relevante, sino porque no hacía falta que estuviera. Las reuniones grandes no eran su territorio. Demasiadas voces, demasiadas capas innecesarias. Émrik asistía en su lugar, apoyado contra una pared, escuchando con atención real.
+Cuando la asignación terminó, la directora lo llamó aparte.
+—Kael va a necesitar apoyo perceptivo —dijo—. No porque no sea capaz, sino porque este fenómeno no se deja cerrar fácilmente.
+Émrik asintió.
+—Lo sé.
+—Trabajará con Nira.
+Émrik sonrió apenas.
+—Eso va a ser interesante.
+La zona de trabajo de Kael estaba más apartada. No aislada, pero sí claramente delimitada. Superficies limpias. Proyecciones ordenadas. El espacio parecía pensado para no distraer.
+Kael estaba de pie frente a una interfaz cuando Émrik llegó con el grupo.
+—Kael —dijo—. Te traigo compañía.
+Kael giró apenas. Su mirada pasó primero por Émrik, luego por Nira y los otros. No fue desconfianza. Fue evaluación.
+—No esperaba un equipo tan…amplio —comentó.
+—No es amplio —dijo Nira—. Solo diverso.
+Kael la miró por primera vez.
+No fue impacto. No fue curiosidad inmediata. Fue una lectura rápida. Presencia relajada. Postura abierta. Ojos atentos, como si estuviera escuchando incluso cuando no había sonido.
+—Kael —dijo él—. Cartografía estructural y modelos de estabilidad.
+—Nira —respondió ella—. Observación ambiental y lectura emocional.
+Kael frunció levemente el ceño.
+—Eso último no es una categoría oficial.
+—Todavía —repitió ella, sin molestarse.
+Émrik intervino antes de que aquello derivara en una discusión que no llevaría a ningún lado.
+—La grieta responde a ambas cosas —dijo—. Números y percepción. Si funciona, funciona.
+Kael asintió, ya volviendo la vista a la proyección.
+La grieta flotaba en el centro del espacio holográfico. Inmóvil. Estable.
+—No hay fluctuaciones —dijo Kael—. No consume energía ni la libera. Es como si estuviera… integrada.
+Nira se acercó despacio.
+—No se siente como una intrusión —dijo—. Más bien como algo que siempre estuvo y recién ahora decidimos mirar.
+Kael levantó la vista.
+—Eso no es medible.
+—No —admitió ella—. Pero coincide con lo que muestran tus datos.
+Kael no respondió de inmediato. Ajustó un parámetro. Luego otro. Nada cambió.
+—Coincide —dijo finalmente—. Y eso es…incómodo.
+Trabajaron durante ciclos enteros sin necesidad de llenar el espacio con conversación. Kael explicaba estructuras. Nira señalaba respuestas que no aparecían en los modelos, pero que encajaban cuando se las dejaba estar.
+No discutían. Tampoco coincidían del todo.
+Y, sin embargo, el sistema avanzaba.
+Al final del ciclo, Émrik pasó a recogerlos.
+—Buen comienzo —dijo—. El Consejo quiere actualizaciones constantes.
+Nira tomó sus cosas.
+—Nos vemos mañana —dijo, como si fuera una certeza.
+Kael tardó un segundo más de lo necesario en responder.
+—Mañana.
+Desde su estación, Kael la vio alejarse. Observó cómo cruzaba la plataforma, cómo esperaba el transporte público, cómo subía sin apuro.
+Anotó el dato mentalmente.
+Misma ruta que él recorría en su vehículo personal.
+No le dio importancia.
+Aelyon, afuera, seguía funcionando con su precisión habitual.
+Y la grieta, suspendida en el cielo, no hacía nada.
+ Solo estaba ahí.
+Como una pregunta que todavía no exigía respuesta
+`,
+ 
+  4: `Trabajar con Kael no era difícil.
+Eso fue lo primero que Nira entendió.
+No había fricción evidente, ni choques de criterio, ni discusiones abiertas. Kael no imponía. Tampoco pedía. Simplemente avanzaba, como si el mundo tuviera que acomodarse al ritmo que él ya había decidido.
+Y el mundo, en su mayoría, lo hacía.
+Kael llegaba antes que todos. Siempre. Cuando Nira entraba a la estación, él ya estaba de pie frente a la consola central, ajustando parámetros que, a simple vista, no necesitaban ajuste. No parecía nervioso. Tampoco ansioso. Solo…ocupado.
+—La densidad lumínica se mantiene constante —dijo una mañana, sin mirarla—. No hay deriva.
+—Lo sé —respondió Nira, dejando sus cosas—. Se siente igual desde ayer.
+Kael no contestó de inmediato. Deslizó dos capas de datos, amplió una gráfica, luego la redujo otra vez.
+—Eso coincide —admitió—. No hay variaciones perceptibles.
+Nira sonrió apenas. No porque hubiera ganado algo, sino porque él no había descartado su comentario.
+Pasaron los ciclos así. Kael construía modelos cada vez más precisos. Nira observaba cómo la grieta alteraba cosas que nadie había pedido que alterara: el modo en que la gente miraba el cielo, la forma en que algunos Lunaris bajaban la voz sin darse cuenta, la ligera demora antes de responder preguntas simples.
+—La grieta no genera estrés ambiental —dijo Kael una tarde—. Pero hay una redistribución sutil de atención.
+—Como si el planeta estuviera sosteniendo la respiración —añadió Nira.
+Kael la miró.
+No con sorpresa. Con reconocimiento.
+—Esa metáfora…—empezó.
+—No entra en un informe —terminó ella—. Ya lo sé.
+No se miraron durante unos segundos. El silencio no fue incómodo. Fue espeso. Como si ambos supieran que estaban describiendo algo que ninguno tenía permiso para nombrar del todo.
+Kael volvió a la consola.
+—Si aceptamos variables no cuantificables —dijo— el modelo pierde solidez.
+—O la gana —respondió Nira— Solo que deja de fingir que lo explica todo.
+Kael no replicó. Ajustó un parámetro innecesario. Luego otro. Nira lo notó. No dijo nada.
+Eso empezó a repetirse.
+Cada vez que Nira hacía una observación que no podía traducirse del todo, Kael no la rechazaba. La rodeaba. La incorporaba sin nombrarla. Como si admitirla en voz alta implicara una grieta distinta, más peligrosa.
+—No te molesta trabajar así —dijo ella un día—. Con cosas que no terminan de cerrar.
+Kael tardó en responder.
+—Me molesta cuando algo es incoherente —dijo finalmente—. Esto no lo es. Solo… incompleto.
+Nira asintió.
+—A veces las cosas se quedan así.
+El ciclo terminó sin incidentes. Émrik pasó a revisar avances, dejó una aprobación breve y se fue sin comentarios. No parecía preocupado. Eso, curiosamente, inquietó más a Nira que cualquier alerta.
+Salieron del laboratorio casi al mismo tiempo. No porque lo planearan. Porque sus horarios habían empezado a coincidir sin que ninguno lo ajustara conscientemente.
+Caminaron juntos unos metros.
+—¿Siempre vuelves en transporte público? —preguntó Kael, señalando la plataforma.
+—Sí —respondió Nira—. Me gusta observar. Escuchar conversaciones que no son mías.
+Kael asintió.
+—Yo no —dijo—. Prefiero trayectos cerrados.
+No sonó a rechazo. Sonó a límite.
+—Tienes auto —comentó ella.
+—Sí.
+Se detuvieron cerca del punto donde sus rutas se separaban. La plataforma pública a un lado. El acceso a vehículos privados al otro.
+Kael miró su auto. Luego la plataforma.
+—Podría…—empezó.
+Se detuvo.
+No había una razón clara para continuar la frase. Tampoco para terminarla.
+—¿Qué? —preguntó Nira, sin presión. Casi con curiosidad técnica.
+Kael negó con la cabeza.
+—Nada. Mañana continuamos.
+—Mañana —repitió ella.
+Nira subió a la plataforma. Kael se quedó mirando cómo el transporte llegaba, cómo ella subía sin apuro, cómo desaparecía entre otros cuerpos que no parecían molestarle.
+Condujo de regreso en silencio.
+Repasó los datos del día. La grieta seguía estable. El modelo funcionaba. No había errores que corregir.
+Y, sin embargo, algo persistía fuera del esquema.
+La grieta no exigía acción. Nira tampoco.
+Ambas cosas estaban ahí, sin colapsar el sistema, sin pedir permiso.
+Por primera vez, Kael pensó que tal vez no todo lo que no encajaba necesitaba ser corregido.
+Aelyon seguía respirando con su precisión habitual. Pero esa respiración ya no era tan fácil de ignorar
+`,
+
+  5: `La grieta dejó de ser novedad.
+Eso no significó que desapareciera, ni que dejara de ser observada. Significó algo más inquietante: se volvió parte del paisaje. Una línea de luz suspendida en el cielo violeta, tan estable que el ojo comenzaba a aceptarla sin protesta. Algunos Lunaris ya no alzaban la vista al pasar bajo ella. Otros lo hacían solo para confirmar que seguía ahí.
+Como si temieran que notar su ausencia fuera peor.
+En el laboratorio, los informes se acumulaban con una regularidad impecable. Kael los revisaba uno por uno, marcando variaciones mínimas que no alteraban el resultado final. Todo seguía dentro de los márgenes aceptables. Demasiado aceptables.
+Nira se sentó en el borde de la mesa, hojeando registros secundarios que nadie había pedido.
+—Las respuestas emocionales ya no suben —dijo—Se estabilizaron.
+—Eso es bueno —respondió Kael sin levantar la vista—Indica adaptación.
+—O resignación.
+Kael hizo una pausa breve. No respondió de inmediato. Ajustó la escala temporal del modelo, como si necesitara comprobar algo que ya sabía.
+—La adaptación es una forma de equilibrio —dijo al final.
+—También lo es dejar de esperar —contestó Nira.
+No hubo discusión. Ninguno parecía interesado en ganarla.
+El Consejo emitió un comunicado esa misma tarde. La grieta no representaba un riesgo. No habría cuarentena extendida. Las actividades continuarían con normalidad. Aelyon, una vez más, demostraba su capacidad para absorber anomalías sin romperse.
+La noticia se celebró con moderación. Un alivio contenido. Nadie parecía especialmente feliz, pero todos parecían tranquilos de volver a una rutina que nunca había dejado de funcionar del todo.
+En la cafetería del laboratorio, los grupos se reunieron como siempre. Mesas largas, superficies translúcidas, conversaciones cruzadas que no exigían atención completa. Nira se sentó con Liraen, Seris y Draen. Kael llegó unos segundos después, con su bandeja perfectamente ordenada.
+—¿Puedo? —preguntó, señalando el espacio libre.
+—Claro —dijo Nira, sin pensar demasiado.
+Comieron en silencio al principio. No incómodo. Simplemente sin prisa.
+—Entonces —dijo Seris—, ¿el cielo roto no va a matarnos?
+—No —respondió Kael—. No hay indicios de colapso.
+—Qué decepción —murmuró Seris.
+Nira sonrió. Kael no.
+—¿Te molesta que ya no sea un problema? —preguntó ella, en voz baja, cuando los demás comenzaron otra conversación.
+Kael pensó la respuesta más tiempo del necesario.
+—Me inquieta que algo deje de serlo sin que entendamos por qué —dijo—. Normalmente, cuando un sistema se estabiliza, hay una causa clara.
+—¿Y si no la hay?
+—Entonces el modelo está incompleto.
+Nira bajó la mirada a su comida.
+—O el modelo no es el lugar correcto para buscarla.
+No insistió. Kael tampoco.
+Al terminar el ciclo, salieron juntos del laboratorio. No porque lo hubieran acordado, sino porque otra vez coincidieron. Kael caminó junto a ella hasta la plataforma pública. Se detuvo.
+El acceso a su vehículo estaba a pocos metros.
+Miró el cielo. La grieta seguía ahí. Inmóvil. Exacta.
+—Hoy voy a probar el transporte público —dijo, como si anunciara un experimento menor.
+Nira lo miró, sorprendida.
+—¿Tú?
+—Quiero comparar tiempos —añadió, demasiado rápido.
+Ella no sonrió. Tampoco comentó nada.
+—Está bien —dijo—. Llega en dos pulsos.
+El bus apareció puntual. Subieron. El interior estaba lleno, pero no saturado. Murmullo bajo. Presencias cercanas. Kael eligió un asiento junto a la ventana. Nira se sentó a su lado sin pensarlo demasiado.
+Durante el trayecto hablaron poco. Comentarios sueltos. Observaciones técnicas disfrazadas de conversación casual. Kael explicaba por qué el suelo líquido no colapsaba bajo la densidad urbana. Nira señalaba cómo algunas personas miraban la grieta solo cuando creían que nadie las observaba.
+—La gente no quiere saber si algo va a romperse —dijo ella—. Quiere saber si va a seguir funcionando mañana.
+Kael asintió.
+—La previsibilidad es una forma de consuelo.
+—Aunque no sea real.
+El bus avanzó. Una parada. Luego otra.
+Kael miró el panel. Su punto habitual estaba cerca.
+—Yo me bajo aquí —dijo.
+Nira asintió.
+—Siempre es aquí —comentó, sin darle importancia.
+Kael se levantó. Dudó una fracción de segundo antes de bajar.
+—Mañana —dijo.
+—Mañana —respondió ella.
+El bus se alejó. Kael caminó el resto del trayecto en silencio. No sentía incomodidad. Tampoco alivio. Solo una extraña suspensión, como si hubiera dejado algo sin cerrar a propósito.
+Esa noche, revisó los registros una vez más. Todo seguía estable. Demasiado.
+Nira, en su habitación, escribió una línea breve en su cuaderno:
+Algunas cosas no piden explicación. Solo compañía.
+Cerró el cuaderno. Apagó la luz.
+La grieta seguía en el cielo.
+El sistema seguía funcionando.
+Y, sin embargo, ambos se acostaron con la misma sensación imprecisa:
+ algo importante había ocurrido, aunque nadie hubiera hecho nada distinto
+.`,
+
+  6: `La grieta no cambió.
+Ese fue el primer dato que Kael revisó al iniciar el ciclo. Comparó registros, superpuso capas temporales, amplió el espectro de lectura hasta el límite permitido. La línea seguía ahí, idéntica a sí misma. Ni más ancha. Ni más brillante. Ni más débil.
+Perfecta en su insistencia.
+Marcó el archivo como sin variaciones relevantes y, aun así, volvió a abrirlo.
+Nira llegó al laboratorio unos pulsos después. No saludó de inmediato. Se detuvo frente a la proyección general del cielo, con los brazos cruzados, como si observara a alguien dormido.
+—Sigue igual —dijo Kael, innecesariamente.
+—Lo sé —respondió ella—. Se siente igual.
+No era un desafío. Era una constatación.
+Trabajaron en paralelo durante buena parte del ciclo. Kael ajustando modelos que ya funcionaban. Nira revisando datos periféricos, informes que nadie consideraba centrales. Cambios en la conducta cotidiana. Pequeños retrasos en los desplazamientos. Conversaciones más cortas. Miradas que se desviaban antes de tiempo.
+Nada cuantificable. Nada alarmante.
+—La gente habla menos de la grieta —dijo ella, sin mirarlo—. Pero la menciona más en frases que no van a ningún lado.
+Kael dejó de teclear.
+—Explícate.
+—“Desde que apareció…” —citó—. O “antes de que el cielo…” Luego cambian de tema. Como si nombrarla del todo fuera demasiado.
+Kael procesó la idea en silencio.
+—Eso es normal —dijo—. Cuando un estímulo se vuelve constante, el sistema lo integra como fondo.
+—¿Y si no es fondo? —preguntó Nira—. ¿Y si es una pregunta que nadie quiere terminar de hacer?
+Kael no respondió. Ajustó un parámetro que no alteraba el resultado final. Lo sabía. Aun así, lo hizo.
+Durante la pausa, Émrik pasó por la estación. Traía el gesto cansado de quien ha repetido demasiadas veces la misma conclusión.
+—El Consejo quiere cerrar el caso —dijo—. Mantener observación pasiva y reasignar recursos.
+—¿Cerrar? —repitió Nira.
+—Archivar —corrigió Émrik—. No desaparecerá, pero dejará de ser prioritaria.
+Kael asintió. Tenía sentido.
+—Es una decisión eficiente —dijo.
+Émrik lo miró un segundo más de lo habitual.
+—Eso no significa que sea cómoda.
+Nira no dijo nada. Guardó ese comentario como se guardan las cosas que no sirven ahora, pero luego pesan.
+Al final del ciclo, Kael se encontró ajustando por tercera vez el mismo informe. No había errores. Lo sabía. El sistema lo confirmaba. Aun así, seguía ahí, afinando márgenes que ya eran aceptables.
+—No necesitas hacerlo tan preciso —dijo Nira desde su estación—. Nadie va a notar la diferencia.
+—Yo sí —respondió él.
+Ella lo observó. No con preocupación. Con atención.
+—¿Te pasa algo? —preguntó.
+La pregunta era simple. Demasiado directa.
+Kael tardó en responder. No porque no tuviera palabras, sino porque no encontraba una que no sonara incorrecta.
+—No —dijo al final—. Todo está estable.
+Nira asintió, pero no volvió a su trabajo de inmediato.
+—A veces —dijo—, cuando todo está demasiado estable, es porque alguien dejó de empujar.
+Kael la miró entonces. No como analista. Como alguien que intenta entender una frase que no entra en ningún modelo.
+—¿Empujar qué? —preguntó.
+—Nada en específico —respondió ella—. Algo.
+No insistió. Se levantó para irse.
+Salieron juntos otra vez. El cielo estaba limpio, salvo por la grieta. La luz violeta caía con la exactitud habitual. Aelyon seguía siendo impecable.
+Caminaron unos metros en silencio.
+—Mañana no voy a venir tan temprano —dijo Nira de pronto.
+Kael se detuvo.
+—¿Por qué?
+—Porque quiero ver cómo se siente llegar después —respondió—. Nada más.
+Asintió. No preguntó nada más.
+—Entonces… mañana —dijo.
+—Mañana —repitió ella.
+Se separaron.
+Esa noche, Kael dejó el panel personal encendido más tiempo del necesario. Observó su indicador. El meñique seguía en azul grisáceo estable. Sin picos. Sin alertas.
+Todo correcto.
+Y, sin embargo, tuvo la sensación incómoda de que algo dentro de él estaba siendo observado sin instrumentos. Algo que no sabía cómo medir y que, por primera vez, no estaba seguro de querer corregir.
+Aelyon dormía sin sobresaltos.
+La grieta también.
+Y en esa quietud compartida, ambos empezaban a comprender lo mismo, sin decirlo:
+ hay cosas que no se rompen, pero tampoco se resuelven
+.`,
+
+7: `Nira llegó más tarde.
+No fue una diferencia dramática. Unos pocos pulsos. Lo suficiente para que Kael lo notara sin que pudiera justificar por qué estaba atento a ello. Revisó el registro de ingreso. Confirmó la hora. Cerró el panel.
+La estación funcionaba con su regularidad impecable. Voces medidas. Pasos suaves. Interfaces respondiendo con la obediencia habitual. La grieta flotaba en la proyección central, convertida ya en parte del paisaje visual, como una marca en una pared que uno deja de explicar.
+Nira no se disculpó por el retraso. Dejó sus cosas, activó su estación y permaneció unos segundos de pie, observando el cielo simulado.
+—¿Cambió algo? —preguntó.
+Kael negó con la cabeza.
+—No.
+Ella asintió, como si esa respuesta confirmara algo que ya sabía.
+Trabajaron en silencio más tiempo del habitual. No un silencio incómodo, sino uno lleno de pequeños ruidos funcionales. Teclas. Pulsos de datos. Ajustes mínimos. Kael se sorprendió a sí mismo revisando la proyección general con más frecuencia de la necesaria, como si esperara que la grieta hiciera algo solo para justificar tanta atención.
+No lo hizo.
+—El Consejo aprobó la reasignación —dijo Kael al cabo de un rato—. A partir del próximo ciclo, esto será observación secundaria.
+—Lo imaginé —respondió Nira—. Aelyon no tolera bien las preguntas largas.
+—Tolera lo que puede integrarse —corrigió él.
+—Exacto.
+Ella revisaba informes de comportamiento colectivo. Nada grave. Nada que activara protocolos. Pero las notas se acumulaban. Cambios de humor sutiles. Menos permanencia en espacios comunes. Más tiempo individual. No aislamiento. Algo más tenue.
+—Es como si todos estuvieran esperando que algo termine —dijo—. Sin saber exactamente qué.
+Kael no levantó la vista.
+—Las transiciones generan ansiedad —dijo—. Es un patrón conocido.
+—¿Y cuando no hay transición? —preguntó ella—. ¿Cuando nada termina?
+Kael dudó. No mucho. Lo suficiente.
+—Entonces el sistema se adapta.
+Nira lo miró.
+—¿Y las personas?
+Kael abrió la boca para responder y la cerró. Ajustó otro parámetro innecesario. El sistema reaccionó como siempre. Sin cambios.
+Durante la pausa, salieron a la plataforma exterior. Desde allí, la grieta se veía más pequeña, casi discreta. Un trazo fino en un cielo demasiado ordenado.
+—¿Nunca te dan ganas de tocarla? —preguntó Nira.
+Kael la miró, desconcertado.
+—No es una superficie —dijo—. No tiene interacción física.
+—Ya sé —respondió ella—. No hablaba de eso.
+Se apoyó en la baranda. Kael hizo lo mismo, con cuidado de dejar una distancia exacta entre ambos. No por rechazo. Por costumbre.
+—Cuando era más joven —dijo Nira—, pensaba que si entendía algo lo suficiente, dejaría de doler.
+Kael la observó. Esperó.
+—Después aprendí que entender no siempre cambia nada —continuó—. A veces solo lo vuelve más claro.
+Kael sintió una incomodidad leve, como un error de redondeo.
+—La claridad es preferible a la confusión —dijo.
+—No siempre —replicó ella—. Algunas cosas sobreviven mejor sin ser miradas de frente.
+Volvieron a entrar sin añadir nada más.
+El resto del ciclo transcurrió sin incidentes. Demasiado normal. Al finalizar, recogieron sus cosas casi al mismo tiempo.
+—Mañana voy a cambiar de ruta —dijo Nira, mientras ajustaba su bolso—. Nada importante. Solo… otra plataforma.
+Kael asintió, pero la frase quedó suspendida entre ambos.
+—Está bien —dijo—. Nos vemos aquí.
+—Sí —respondió ella—. Aquí.
+Caminaron juntos unos metros más de lo habitual antes de separarse. No fue una decisión consciente. Simplemente ocurrió. Cuando finalmente tomaron direcciones distintas, Kael sintió una ausencia breve, precisa, como cuando se elimina una variable que uno aún no había terminado de observar.
+Esa noche, revisó los datos antes de dormir. Todo seguía dentro de los márgenes esperados. La grieta. El planeta. Su indicador personal.
+Apagó el panel.
+En la oscuridad, pensó que había sistemas que no fallaban, pero tampoco ofrecían respuestas. Que quizás la estabilidad no era un estado final, sino una pausa demasiado larga.
+En otro punto de Aelyon, Nira escribía en su cuaderno sin frases completas. Solo marcas. Palabras sueltas. Espacios.
+Ambos, sin saberlo, estaban haciendo lo mismo: registrando señales de fondo, esperando que alguna se atreviera a convertirse en pregunta.
+`,
+
+8: `La grieta dejó de ser noticia.
+No hubo anuncio oficial. No hizo falta. Simplemente pasó de ocupar el centro de las proyecciones a un recuadro lateral. De alerta a referencia. De anomalía a contexto. Aelyon tenía una habilidad admirable para domesticar lo que no entendía del todo.
+Kael notó el cambio en los informes antes que en las pantallas. Menos comentarios. Menos adjetivos. Más fórmulas repetidas. La grieta seguía ahí, pero ahora estaba rodeada de palabras tranquilizadoras: estable, constante, sin impacto observable.
+Eso debía bastar.
+En la práctica, el trabajo se volvió más liviano. Menos simulaciones nuevas. Más mantenimiento. Kael se encontró revisando modelos cerrados, puliendo detalles que ya no alteraban ningún resultado. Ajustes elegantes. Inútiles.
+Nira también lo notó.
+—Ya no nos necesitan tanto —dijo un día, sin reproche.
+—Eso es bueno —respondió Kael—. Significa que el sistema absorbió la variable.
+—¿Y nosotros? —preguntó ella.
+Kael no respondió de inmediato. No porque no tuviera una respuesta, sino porque ninguna le parecía verificable.
+—Seguimos siendo necesarios —dijo al final—. Solo en otra función.
+Nira aceptó la frase, pero no la guardó.
+Los ciclos se volvieron previsibles. Demasiado. Se encontraban cada día a la misma hora, en la misma estación, frente a la misma proyección. Hablaban lo justo. Se entendían en lo técnico. Se evitaban en lo demás.
+A veces, Kael pensaba en decir algo que no estuviera relacionado con datos. La idea aparecía como un error leve, una advertencia que el sistema interno corregía de inmediato.
+No era el momento.
+No era pertinente.
+No era necesario.
+Nira, por su parte, empezó a llegar siempre a tiempo. Ni antes ni después. Como si hubiera decidido no dejar rastros innecesarios. Trabajaba con la misma atención de siempre, pero ya no hacía observaciones espontáneas. Anotaba. Guardaba. Cerraba.
+—Antes hablabas más —comentó Kael una vez, sin mirar.
+—Antes era distinto —respondió ella.
+—¿En qué sentido?
+Nira tardó unos segundos.
+—No lo sé todavía.
+Eso lo inquietó más de lo que habría esperado.
+En la pausa, coincidieron otra vez en la plataforma exterior. No porque la buscaran, sino porque era el único espacio sin tareas asignadas. La grieta flotaba sobre ellos, inmutable.
+—¿Te acostumbraste? —preguntó Nira.
+Kael siguió la línea luminosa con la vista.
+—Sí.
+—Yo no —dijo ella—. Solo dejé de esperar que cambiara.
+Kael sintió la tentación de analizar esa frase. Descomponerla. Buscarle una lógica. No lo hizo.
+—El Consejo evalúa cerrar el proyecto en dos ciclos —dijo en cambio—. Dejar la grieta como fenómeno registrado.
+Nira asintió.
+—Era cuestión de tiempo.
+—Eso implica reasignaciones —continuó Kael—. Nuevos equipos. Nuevas rutinas.
+—Nuevas distancias —añadió ella, casi para sí.
+El silencio volvió a instalarse. No como vacío, sino como peso. Kael notó que estaba conteniendo la respiración. La soltó despacio, como si eso fuera una decisión importante.
+—Si te reasignan —dijo—, puedo solicitar—
+Se detuvo.
+No había terminado la frase porque no sabía cómo justificarla.
+Nira lo miró con atención. No con expectativa. Con cuidado.
+—No hace falta —dijo—. No todo tiene que mantenerse igual para seguir funcionando.
+Kael asintió, pero algo en su interior se resistió a aceptar esa ecuación.
+Esa noche, el indicador de su meñique mostró una variación mínima. Nada alarmante. Dentro del rango. Aun así, Kael reinició el diagnóstico dos veces.
+En la tercera, cerró el panel sin terminar.
+Nira, en su habitación, no escribió. Se quedó mirando una página en blanco hasta que la luz violeta se apagó por completo. Pensó que había cosas que no se rompían, pero se volvían más difíciles de sostener cuanto más estables parecían.
+Aelyon seguía en equilibrio.
+Y en ese equilibrio, ambos empezaban a sentir el mismo pensamiento, aún sin palabras:
+ que lo estable también podía ser una forma lenta de pérdida.
+`,
+
+9: `El aviso llegó sin ceremonia.
+Un mensaje estándar, tono neutro, prioridad media. Kael lo leyó dos veces, aunque lo había entendido a la primera.
+Reasignación aprobada.
+Nuevo equipo a partir del próximo ciclo.
+Proyecto Grieta: fase de observación pasiva.
+Eso era todo.
+No decía fin, pero se le parecía bastante.
+Kael cerró el mensaje y volvió a la proyección. La grieta seguía exactamente igual. Ninguna variación. Ningún motivo para alarma. El tipo de estabilidad que el sistema premiaba.
+Ajustó un parámetro menor. Luego otro. Cambios que no alteraban nada. Lo sabía. Precisamente por eso los hacía.
+Nira llegó unos minutos después. Puntual. Demasiado.
+—¿Lo viste? —preguntó, sin preámbulos.
+Kael asintió.
+—Sí.
+—Entonces ya está —dijo ella.
+No sonaba triste. Sonaba cuidadosa.
+Trabajaron en silencio durante gran parte del ciclo. No porque no hubiera nada que decir, sino porque cualquier cosa parecía excesiva. Las palabras técnicas se sentían seguras. Todo lo demás no.
+En un momento, Nira se inclinó hacia la proyección y señaló una microvariación casi invisible.
+—Esto no estaba antes.
+Kael revisó los datos.
+—Sí estaba —dijo—. Solo que ahora sabemos mirarla.
+Nira lo observó un segundo más de lo habitual.
+—Eso aplica a más cosas de las que admites.
+Kael no respondió. No corrigió. No negó.
+La pausa se estiró.
+—Me reasignan al cinturón sur —dijo ella, finalmente—. Observación ambiental. Es tranquilo.
+—Eso está a tres plataformas de aquí —respondió Kael.
+—Lo sé.
+Otra frase que parecía técnica y no lo era.
+Cuando el ciclo terminó, no guardaron las cosas de inmediato. Permanecieron ahí, como si el espacio pudiera ofrecer una instrucción adicional.
+—Kael —dijo Nira, sin levantar la voz—. Lo que pasó entre nosotros…
+Él levantó la vista de golpe. Demasiado rápido.
+—No pasó nada —dijo.
+Ella asintió despacio.
+—Exacto.
+Eso fue lo que dolió.
+Kael sintió el impulso de explicarse. De ordenar la situación. De decir que había hecho cálculos, que había considerado escenarios, que no quería introducir ruido innecesario en algo que funcionaba.
+No dijo nada de eso.
+En su lugar, hizo algo pequeño. Ridículo, incluso.
+Extendió la mano y desactivó manualmente el seguimiento automático de la grieta. Un gesto simbólico. Inútil. El sistema lo haría igual sin él.
+—No voy a solicitar la reasignación —dijo.
+Nira lo miró. No sorprendida. Atenta.
+—¿Por qué?
+Kael tardó.
+—Porque no puedo justificarlo con datos —respondió—. Y si lo hiciera, estaría mintiendo.
+Nira exhaló, como si hubiera estado sosteniendo el aire desde hacía días.
+—Gracias —dijo.
+No por quedarse.
+No por irse.
+Por no fingir.
+Caminaron juntos hasta la salida. No demasiado cerca. No demasiado lejos. La grieta los acompañó desde lo alto, silenciosa.
+En la plataforma, se detuvieron.
+—Supongo que esto es… —empezó Kael.
+—Un ajuste —terminó Nira—. No un colapso.
+Se miraron. Lo suficiente.
+Esa noche, Kael no reinició el diagnóstico de su meñique. La variación seguía ahí. Mínima. Persistente. La dejó estar.
+Nira, en casa, escribió una sola línea en su cuaderno:
+No decirlo todo también es una forma de elegir.
+Aelyon no registró ninguna anomalía ese ciclo.
+Pero algo había cambiado.
+No en el cielo.
+En la manera en que ambos aceptaban que no todo debía resolverse para ser real.
+`,
+
+10: `La grieta permaneció.
+No fue noticia. No apareció en los informes destacados ni generó nuevas reuniones. Se convirtió en parte del paisaje, como una cicatriz antigua que deja de doler pero no desaparece. Aelyon era bueno haciendo eso. Integrar lo que no podía corregir.
+Kael siguió trabajando en el laboratorio central, aunque su rol cambió de forma sutil. Menos decisiones. Más supervisión. Más validación de modelos ajenos. El tipo de trabajo que no exigía demasiada implicación emocional. El sistema lo consideró un ajuste lógico.
+Él también.
+Algunas mañanas despertaba antes del amanecer violeta y se quedaba inmóvil unos pulsos más de lo habitual. No revisaba el panel de diagnóstico de inmediato. Dejaba que el murmullo del planeta entrara sin traducirlo. No era cómodo. Tampoco era peligroso. Solo nuevo.
+El meñique seguía en un azul grisáceo aceptable. No perfecto. Nunca volvía al tono exacto de antes. Nadie más lo notaría. Kael sí. Y no hacía nada al respecto.
+Nira, en el cinturón sur, pasaba más tiempo observando que registrando. La vegetación respondía con lentitud a la grieta lejana, como si aprendiera a crecer alrededor de una pregunta sin respuesta. Eso le parecía honesto.
+A veces, al finalizar el ciclo, se quedaba sentada en silencio, sin escribir. Había aprendido que no todo necesitaba convertirse en palabras para existir. Nombrar seguía siendo una forma de perder. Pero no nombrar también tenía su costo.
+Se cruzaban de vez en cuando. En plataformas. En pasillos amplios donde nadie esperaba nada de nadie. Saludaban con un gesto breve. A veces intercambiaban una observación técnica. Nunca más que eso.
+Nunca menos.
+Una tarde, mientras Kael ajustaba una proyección secundaria, notó una microvariación nueva en la grieta. Nada relevante. Nada que justificara un informe. Cerró la ventana de datos sin guardarla.
+Por primera vez, no por evitar consecuencias.
+Por aceptar que no todo requería ser archivado.
+Nira sintió algo similar esa misma noche. Una incomodidad leve. Familiar. No la escribió. No la compartió. La dejó estar, como se deja una luz encendida en otra habitación.
+Aelyon siguió funcionando.
+Las lunas mantuvieron su danza exacta. La luz violeta ascendió y descendió con su puntualidad habitual. El sistema respiró, satisfecho con su propia estabilidad.
+La grieta no se cerró.
+Tampoco ellos.
+Y en ese equilibrio extraño, incompleto, silencioso, ambos aprendieron algo que el planeta nunca les enseñó de forma explícita: Que vivir sin romperse no siempre significa estar intacto. Y que a veces, elegir no corregir es la forma más honesta de permanecer.
+El cielo seguía abierto. No como amenaza. Como posibilidad.
+.`,
+
+11: `La primera anomalía fue tan pequeña que no mereció un registro.
+Kael la detectó mientras revisaba una simulación heredada de otro equipo. Un desfase mínimo en la proyección secundaria de la grieta. Nada nuevo. Nada que no hubiera visto antes. Ajustó el parámetro una vez. Luego otra. La tercera vez se dio cuenta de que ya no estaba corrigiendo un error, sino repitiendo un gesto.
+Dejó el ajuste incompleto.
+El sistema no protestó. Aelyon rara vez lo hacía.
+Se quedó mirando la proyección unos pulsos más de lo necesario. La grieta seguía ahí, suspendida, indiferente a sus cálculos. Por primera vez, Kael no intentó traducirla del todo. Cerró la interfaz sin generar informe.
+No era negligencia. Era cansancio.
+En otro sector del laboratorio, Nira observaba una zona vegetal que había aprendido a crecer torcido. No enfermo. No mutado. Simplemente adaptado a una presión que ya no intentaba evitar. Tomó notas mentales, no escritas. Sabía exactamente qué diría el protocolo. Y sabía que no lo diría.
+Se cruzaron en el corredor central.
+No fue un encuentro planeado. Ninguno redujo el paso ni lo aceleró. Coincidieron como coinciden las cosas que ya se conocen demasiado bien para fingir sorpresa.
+—La grieta sigue estable —dijo Kael.
+No era una noticia. Era una excusa.
+—Nunca dejó de estarlo —respondió Nira.
+Caminaron juntos unos metros. El silencio no era incómodo, pero tampoco cómodo. Era un espacio compartido que ninguno se atrevía a nombrar.
+—Omití un reporte hoy —añadió Kael, casi como una confesión técnica.
+Nira lo miró de reojo.
+ —Yo también.
+No preguntaron más. No hicieron un pacto. No lo convirtieron en algo significativo. Pero algo se desplazó, apenas.
+Esa noche, Rael llegó antes de lo habitual. Kael estaba en la zona común, sin informes abiertos, observando el cielo desde el ventanal.
+—No estás trabajando —dijo su padre.
+—No ahora.
+Rael se sentó a su lado. Permanecieron en silencio. No era incómodo. Nunca lo había sido entre ellos. Era una forma heredada de estar juntos sin exigencias.
+—El sistema está… cambiando —dijo Rael al fin—. Lentamente. No en los datos. En las personas.
+Kael asintió.
+ —Lo sé.
+—Y eso te inquieta.
+—No exactamente —respondió—. Me inquieta que ya no me inquiete como antes.
+Rael lo observó con atención, pero no dijo nada más. No todo requería consejo.
+En otra vivienda, Nira cenaba con su madre. La conversación fue breve, correcta. Sin reproches. Sin explicaciones.
+—Te noto distinta —dijo su madre.
+—No —respondió Nira—. Solo menos ruidosa.
+No era una mentira. Era un ajuste.
+Antes de dormir, abrió uno de sus cuadernos. Lo cerró sin escribir. No todo necesitaba forma.
+La grieta seguía ahí, visible desde ciertas zonas de la ciudad. No dominaba el cielo. Pero tampoco se escondía.
+Kael la observó desde su ventana esa noche. Nira también, desde otro punto de Aelyon. Ninguno pensó en el otro de forma directa. Y aun así, algo compartían.
+No una certeza.
+No una promesa.
+Solo la sensación incómoda y persistente de que el sistema había aceptado una falla.
+ Y que ellos, quizá, estaban aprendiendo a hacer lo mismo.
+Nada se rompió.
+Nada se resolvió.
+Y por primera vez, eso no pareció un problema urgente.
+`,
+
+12: `Aelyon había decidido que la grieta era parte del paisaje.
+No hubo anuncio oficial que lo declarara así. Ningún comunicado solemne. Simplemente dejó de ocupar titulares internos, de generar alertas suaves en los dispositivos personales. Los habitantes aprendieron a no levantar la vista más de lo necesario. El cielo, al final, seguía cumpliendo su función.
+Eso era lo que importaba.
+Kael notó el cambio en el laboratorio antes que en sí mismo. Las reuniones se acortaron. Las proyecciones dejaron de ampliarse por defecto. La grieta ya no requería atención constante, solo mantenimiento. Supervisión pasiva. Un estado que, en teoría, era el ideal.
+En la práctica, lo irritaba.
+Revisó una serie de datos que ya conocía. No porque hiciera falta, sino porque la repetición le daba una estructura reconocible. Ajustó un parámetro menor. Lo devolvió a su valor original. Repitió el proceso. El meñique seguía en su azul grisáceo habitual. Demasiado estable.
+Nira pasó por su estación sin detenerse. Llevaba consigo un contenedor de muestras biolumínicas. Caminaba con ese descuido atento que parecía improvisado, pero no lo era. Kael la observó solo el tiempo necesario para registrar que no lo había mirado.
+Eso también era un dato.
+Más tarde, coincidieron en una mesa lateral durante el ciclo de descanso. No se sentaron juntos al principio. No era necesario. Aelyon ofrecía suficiente espacio para fingir independencia.
+—El Consejo cerró la fase activa del proyecto —dijo Nira, removiendo una bebida que no necesitaba ser removida—. La grieta ya no es prioridad.
+—Eso reduce riesgos —respondió Kael.
+—O los vuelve invisibles.
+Kael no replicó. Sabía que tenía razón, pero no en un sentido que pudiera modelar. Observó cómo Nira dejaba de mover la bebida y la empujaba apenas hacia un lado. Un gesto mínimo. Innecesario. Lo anotó mentalmente sin saber por qué.
+—¿Te molesta? —preguntó ella, sin mirarlo.
+—No —dijo Kael—. Me desconcierta.
+Eso era más honesto de lo habitual.
+Nira asintió.
+ —La estabilidad hace eso. Te acostumbra a no preguntar.
+Se quedaron en silencio. No uno tenso. No uno cómodo. Un silencio funcional. Como el que existe entre dos instrumentos afinados que aún no saben si tocarán juntos.
+Al final del ciclo, salieron casi al mismo tiempo. La plataforma de transporte público estaba más llena de lo habitual. Kael se detuvo. Evaluó. Demasiadas personas. Demasiadas trayectorias imprevisibles.
+Nira lo notó.
+—Puedes irte por otro lado —dijo—. No pasa nada.
+No sonó a rechazo. Sonó a permiso.
+Kael dudó un pulso de más.
+ —No —respondió—. Está bien.
+Subieron al mismo transporte sin sentarse juntos. Se sostuvieron de puntos distintos. No hablaron. Pero el reflejo de la ventana los mostró compartiendo el mismo marco, levemente deformado por el vidrio.
+Al bajar, tomaron direcciones distintas. Ninguno se giró.
+Esa noche, Kael dejó sin cerrar una simulación. No fue un error técnico. Fue una interrupción voluntaria. Se quedó mirando el cielo hasta que la luz violeta perdió intensidad.
+En otro punto de la ciudad, Nira escribió una frase en su cuaderno y la tachó de inmediato.
+“No todo lo estable es seguro.”
+La grieta no se movió.
+ Aelyon tampoco.
+Pero algo, muy lentamente, comenzaba a sentirse menos inevitable.
+`,
+
+13: `La ausencia también puede volverse rutina.
+Kael lo descubrió al tercer ciclo sin trabajar directamente con Nira. No hubo reasignación formal. Nadie decidió separarlos. Simplemente dejaron de coincidir en los mismos horarios con la misma frecuencia. La grieta no lo exigía. El sistema, una vez más, había optimizado.
+Kael aceptó esa lógica con una docilidad que le resultó sospechosa.
+Se levantó a la misma hora. Ajustó su diagnóstico personal con la misma precisión. El meñique seguía marcando un azul grisáceo impecable, sin oscilaciones. Concentración dentro del rango esperado. Demasiado dentro.
+En el laboratorio, los datos fluían con una facilidad casi ofensiva. Modelos cerrados. Proyecciones que ya no pedían correcciones. Kael se descubrió ampliando gráficos que no lo necesitaban, buscando microdesviaciones que no aparecían.
+El mundo seguía funcionando. Eso era el problema.
+Nira, por su parte, había comenzado a llegar más tarde. No tarde en el sentido técnico. Tarde para ella. Ocupaba estaciones secundarias, se ofrecía para tareas que no requerían exposición directa. Observaba desde los bordes.
+Hablaba. Mucho. Pero decía menos.
+—¿Te pasa algo? —le preguntó Liraen una tarde, sin rodeos.
+Nira levantó la vista de una muestra vegetal que no necesitaba atención inmediata.
+ —No —respondió—. ¿Por qué?
+—Estás…más precisa —dijo él, buscando la palabra correcta—. Antes eras más molesta.
+Nira sonrió.
+ —Gracias.
+No era una mejora. Era una adaptación.
+Ese mismo ciclo, Kael solicitó acceso a un módulo de simulación que no le correspondía. No para la grieta. Para un modelo antiguo sobre resonancias emocionales colectivas, archivado por falta de aplicaciones prácticas.
+La solicitud fue aprobada de inmediato. Nadie vigilaba ya ese tipo de cosas.
+Leyó durante horas. Teoría obsoleta. Lenguaje impreciso. Demasiadas palabras para explicar sensaciones que no podían replicarse en laboratorio. Cerró el archivo con una irritación que no supo ubicar.
+No era inútil. Era insuficiente.
+Se cruzaron en un pasillo estrecho al final del día. No fue planeado. No fue evitado. Simple coincidencia geométrica.
+—Hola —dijo Nira.
+—Hola —respondió Kael.
+Se quedaron quietos un segundo de más, como si ambos esperaran una instrucción externa que no llegó.
+—La grieta sigue estable —dijo él, finalmente.
+—Sí —contestó ella—. Ya casi nadie la menciona.
+Kael asintió.
+ —Eso indica éxito.
+Nira lo miró entonces. Directo. Sin desafío. Sin expectativa.
+ —¿Y tú te sientes…exitoso?
+La pregunta no era técnica. Eso la volvió peligrosa.
+Kael abrió la boca. La cerró. Ajustó el ángulo de su postura, un gesto mínimo que delataba un esfuerzo por reordenarse.
+—Me siento… funcional —dijo al final.
+Nira sostuvo la mirada un instante más. Luego sonrió, apenas.
+ —Eso pensé.
+Se despidieron sin ceremonia. Cada uno tomó una dirección distinta, aunque ambas llevaban al mismo nodo central de transporte.
+Esa noche, Kael cenó solo otra vez. Esperó a su padre más de lo habitual, aun sabiendo que no llegaría. No por esperanza. Por costumbre.
+Nira llegó a casa antes de lo normal. Su madre levantó la vista, sorprendida. No dijo nada. Ese silencio fue peor que cualquier reproche.
+En su habitación, Nira abrió el cuaderno. No escribió de inmediato. Dejó la página en blanco varios minutos, como si esperara que algo se revelara por cansancio.
+Finalmente, anotó:
+“Hay cosas que funcionan incluso cuando nadie las sostiene.
+ Eso no significa que duren.”
+Cerró el cuaderno.
+Aelyon seguía estable.
+ La grieta seguía ahí.
+Y entre Kael y Nira comenzaba a formarse algo más frágil que un error:
+ una distancia que no había sido decidida por ninguno de los dos.`,
+
+14: `La grieta llevaba tantos ciclos estable que había empezado a volverse invisible.
+No porque desapareciera, sino porque nadie la miraba ya con verdadera atención. Los informes la mencionaban en párrafos secundarios. Las proyecciones la incluían como una constante, no como una incógnita. Había pasado de anomalía a fondo.
+Kael participó en esa transición con eficiencia impecable.
+Aceptó que su trabajo sobre la grieta había terminado. Aceptó que otros equipos tomaran el seguimiento rutinario. Aceptó, incluso, que ya no hubiera una razón funcional para coincidir con Nira más allá de encuentros accidentales.
+Lo que no aceptó, aunque tampoco lo formuló, fue la incomodidad que aparecía cuando no la veía.
+No la llamaba ausencia.
+Ausencia implicaba pérdida.
+Esto era otra cosa.
+Ajustaba parámetros que ya estaban correctos. Reordenaba archivos cerrados. Se detenía frente a interfaces apagadas como si esperara que le pidieran algo. El meñique seguía marcando estabilidad perfecta. Un color tan preciso que empezaba a parecer una burla.
+—Estás sobreoptimizando —le dijo Émrik una tarde, sin rodeos.
+Kael no levantó la vista.
+ —La sobreoptimización no existe. Solo la optimización incompleta.
+Émrik suspiró.
+ —Eso suena exactamente a alguien que no quiere irse a casa.
+Kael cerró la proyección con un gesto seco.
+ —Mi hogar no es un factor relevante.
+—Nunca lo es —respondió Émrik—. Hasta que lo es.
+No hablaron más del tema.
+Nira, mientras tanto, había desarrollado una nueva rutina. Se quedaba más tiempo con sus amigos, pero hablaba menos con ellos. Escuchaba. Comentaba lo justo. Hacía las preguntas correctas sin exponerse en las respuestas.
+Era una versión de sí misma que funcionaba demasiado bien.
+Su padre lo notó una noche, mientras compartían una comida silenciosa.
+—Estás eligiendo tus palabras —dijo de pronto—. Antes no lo hacías tanto.
+Nira sonrió sin levantar la vista.
+ —La gente cambia.
+—Sí —asintió él—. Pero normalmente lo hace cuando algo importa.
+Ella se quedó quieta. El cubierto suspendido a medio camino.
+ —¿Y si importa demasiado?
+Su padre no respondió de inmediato.
+ —Entonces uno aprende a llamarlo por su nombre —dijo—. Aunque dé miedo.
+Nira no contestó. Pero esa noche no pudo dormir de inmediato.
+Pensó en Kael.
+No en una versión ideal.
+En la real. En cómo escuchaba sin saber qué hacer. En cómo corregía datos para no corregirse a sí mismo. En la forma exacta en que decía su nombre, sin énfasis, como si nombrarla fuera un acto técnico.
+Eso era lo peligroso.
+Al día siguiente, volvieron a coincidir frente a la grieta.
+No porque fuera necesario. Porque ambos habían elegido ese punto del laboratorio para trabajar tareas distintas, como si el espacio neutralizara cualquier expectativa.
+—Sigue igual —dijo Kael, sin mirarla.
+—Sí —respondió Nira—. Me preocupa lo poco que nos preocupa.
+Kael dejó de escribir.
+ —La estabilidad reduce la ansiedad colectiva. Es lógico.
+—No hablo del planeta —dijo ella.
+Silencio.
+No incómodo. Preciso.
+—Hay cosas —continuó Nira— que cuando dejan de doler no es porque sanaron, sino porque uno dejó de tocarlas.
+Kael respiró hondo. Un ajuste mínimo, casi imperceptible.
+ —Evitar una variable no la elimina —dijo—. Solo la posterga.
+Nira lo miró entonces.
+ —Eso suena a advertencia.
+—Es una observación —corrigió él.
+Trabajaron el resto del ciclo sin decir nada más. Demasiado cerca. Demasiado lejos.
+Cuando se despidieron, ninguno propuso verse después.
+Esa fue la decisión más clara que habían tomado en días.
+Aelyon continuaba estable, perfecta, funcional.
+Y en ese equilibrio forzado, Kael y Nira aprendían la forma más peligrosa de todas:
+ cómo seguir adelante sin resolver nada.
+`,
+
+15: `La ciudad celebró la normalidad con una discreción casi ofensiva.
+No hubo anuncios ni ceremonias. Solo pequeños cambios: las rutas se reabrieron, los horarios volvieron a comprimirse, las miradas dejaron de levantarse hacia el cielo. La grieta seguía allí, visible si uno sabía dónde mirar, pero ya no justificaba demoras ni conversaciones largas.
+Aelyon había decidido que el tema estaba resuelto.
+Kael leyó el comunicado tres veces. No porque fuera complejo, sino porque no decía nada. Estabilidad confirmada. Seguimiento de bajo impacto. Recursos reasignados. La frase final le resultó especialmente limpia: no se requieren ajustes adicionales.
+Cerró el archivo.
+Dejó la consola encendida un segundo más de lo necesario, como si el sistema pudiera reclamarle algo. No lo hizo.
+Nira pasó por el laboratorio sin detenerse. Llevaba una carpeta física, algo cada vez menos común. Cuando lo vio, levantó la mano en un gesto breve. No se acercó.
+Él devolvió el gesto con exactitud.
+Ambos entendieron el acuerdo tácito: hoy no.
+En el comedor común, el ruido era bajo, constante. Conversaciones que no pedían atención. Nira se sentó con su grupo habitual. Rió en los momentos correctos. Contó una anécdota corta, inofensiva. La escucharon. Asintieron. Nadie preguntó nada más.
+Eso también era estabilidad.
+Kael comió solo. No por aislamiento deliberado, sino porque nadie se sentó frente a él. Observó cómo reorganizaba mentalmente la bandeja, alineando objetos que no necesitaban alineación. El meñique seguía en su tono exacto. Azul grisáceo. Confiable.
+Demasiado.
+Esa tarde, Émrik lo encontró en una de las plataformas externas, mirando la grieta sin proyectores ni datos.
+—Pensé que ya no era tu área —dijo.
+—No lo es —respondió Kael.
+—Entonces, ¿qué haces?
+Kael tardó.
+ —Verificando que no haya cambiado.
+Émrik siguió su mirada.
+ —A veces las cosas no cambian porque nadie las empuja.
+No hubo respuesta inmediata.
+—¿Sabes qué es lo que más tranquiliza a la gente? —continuó Émrik—. No que todo esté bien. Que nadie haga preguntas.
+Kael asintió una vez. Un gesto mínimo.
+Al final del ciclo, Nira salió más tarde que de costumbre. Caminó sin rumbo fijo unos minutos antes de dirigirse al transporte. La ciudad estaba especialmente silenciosa. No por falta de vida, sino por exceso de acuerdo.
+Se detuvo frente a un reflejo en una superficie líquida. Se observó como si fuera otra persona. Pensó en decir algo en voz alta. No lo hizo.
+Cuando el bus llegó, subió sin apuro. Se sentó junto a la ventana. La ruta era conocida. Predecible. Tranquilizadora.
+A mitad del trayecto, notó el vehículo de Kael avanzar en paralelo, unos metros más arriba, sobre la plataforma privada. No se miraron. No hicieron ningún gesto.
+Ambos siguieron su camino.
+Esa noche, Kael llegó a casa antes de lo habitual. Su padre aún no estaba. La mesa intacta. El silencio limpio. Se sentó sin encender luces adicionales.
+Pensó en Nira.
+ No en lo que sentía.
+ En lo que no habían dicho.
+Entendió, con una claridad incómoda, que la estabilidad podía ser una forma elegante de huida. Que no todo equilibrio era saludable. Que a veces, mantener las cosas como están es la decisión más activa de todas.
+Nira, en su habitación, cerró su cuaderno sin escribir nada. No porque no hubiera pensamientos, sino porque ponerlos en palabras los volvería reales.
+Ambos eligieron lo mismo sin hablarlo: seguir funcionando.
+Aelyon aprobó esa elección sin objeciones.
+La grieta, inmóvil en el cielo, tampoco dijo nada
+.`,
+
+16: `El informe final sobre la grieta fue archivado sin ceremonia.
+Un identificador neutro. Una fecha. Un sello de seguimiento pasivo. Kael lo firmó sin leerlo completo. No porque no le importara, sino porque ya lo conocía. Cada frase había sido revisada, pulida, vaciada de cualquier ambigüedad. Era un texto imposible de discutir. También imposible de habitar.
+Después de enviarlo, se quedó mirando la consola apagada. La encendió. La volvió a apagar. Ajustó un parámetro menor del sistema ambiental de la sala. Lo regresó a su valor original.
+No había error. Había exceso de espacio.
+Nira pasó la mañana recorriendo sectores que no requerían su presencia. Observó cultivos que respondían bien. Superficies que se adaptaban como siempre. Personas que hablaban de planes próximos con una tranquilidad ensayada.
+—Todo volvió a la normalidad —le dijo Liraen, con una sonrisa sincera.
+—Sí —respondió Nira—. Eso parece.
+No añadió nada más. Nadie lo esperaba.
+En el laboratorio, Kael evitó el área donde solían trabajar juntos. No por incomodidad, sino por economía emocional. Sabía que verla implicaba pensar. Pensar implicaba recalcular. Y no todo debía recalcularse.
+O eso intentaba convencerse.
+Al mediodía, coincidieron en el pasillo central. Fue un encuentro sin coreografía. Sin aviso previo. Nira llevaba las manos ocupadas. Kael, no.
+—Hola —dijo ella.
+—Hola —respondió él.
+No se detuvieron. Caminaron en paralelo unos pasos. La conversación era posible. Ambos lo sabían. Ambos la evitaron con la misma cortesía precisa.
+—¿Todo estable? —preguntó Kael, finalmente.
+—Lo suficiente —dijo Nira—. Como siempre.
+Kael asintió.
+ —Entonces funcionó.
+Nira lo miró de reojo.
+ —¿Qué cosa?
+Él dudó una fracción de segundo.
+ —El protocolo.
+Ella sonrió apenas. No con ironía. Con cansancio.
+—Sí —dijo—. Funcionó.
+Se separaron sin despedirse.
+Esa tarde, la directora anunció la redistribución definitiva de equipos. Nuevos proyectos. Nuevas combinaciones. Nada que levantara objeciones. Nira escuchó su nombre asignado a otro sector. Kael escuchó el suyo en otro módulo.
+No intercambiaron miradas.
+Aelyon no separaba a nadie. Solo optimizaba.
+Al salir, el cielo estaba despejado. La grieta seguía allí, pero la luz la atravesaba como si siempre hubiera sido parte del paisaje. Un detalle incómodo que ya no pedía atención.
+Nira tomó el bus. Se sentó en el mismo lugar de siempre. Pensó en bajar una parada antes. No lo hizo.
+Kael condujo su vehículo sin modificar la ruta. Pensó en desviarse. No lo hizo.
+Ambos llegaron a casa a la hora exacta.
+Esa noche, Nira escribió una sola línea en su cuaderno y luego la tachó. Kael revisó un informe antiguo sin necesidad real. Cada uno encontró una tarea que justificara no pensar en el otro.
+No hubo discusión.
+No hubo cierre.
+No hubo error visible.
+Solo una tensión mantenida con precisión.
+Aelyon, satisfecho, siguió funcionando.
+Y ellos también`,
+
+17: `El cambio de equipos se asentó rápido.
+Eso era lo que Aelyon hacía mejor: absorber cualquier alteración y convertirla en rutina. En menos de tres ciclos, los nuevos horarios dejaron de sentirse extraños. Los pasillos recuperaron su ritmo habitual. Las conversaciones volvieron a girar en torno a datos seguros.
+Kael trabajaba ahora en un módulo más alto, con vistas directas al cielo. Desde allí, la grieta parecía menos una fisura y más una costura mal cerrada. Un recordatorio discreto. Persistente.
+Ajustó un modelo de estabilidad atmosférica que ya estaba validado. Lo sabía. Aun así, volvió a recorrer cada variable, como si pudiera encontrar algo nuevo solo por insistir lo suficiente.
+No lo hizo.
+Cada tanto, su mirada se desviaba hacia la entrada del módulo. Un reflejo automático. Ninguna expectativa consciente. Solo un hábito que aún no se había extinguido.
+Nira, por su parte, pasó el día entero en campo. Observación directa. Sensores portátiles. Contacto con otros Lunaris que no la conocían lo suficiente como para notar sus silencios.
+Eso le resultaba más fácil.
+—Te adaptaste rápido —le dijo una supervisora nueva mientras revisaban una lectura.
+—Siempre lo hago —respondió Nira.
+Y era cierto. Adaptarse no le costaba. Permanecer, sí.
+Durante una pausa, se sentó en el borde de una plataforma suspendida y dejó que el murmullo del planeta la atravesara sin intentar interpretarlo. Cerró los ojos. Pensó en decir algo. A nadie en particular.
+No lo hizo.
+Al final del ciclo, coincidieron otra vez. Esta vez fue inevitable. El mismo cruce. La misma intersección neutra entre dos rutas perfectamente calculadas.
+—Nira —dijo Kael, deteniéndose.
+Ella se giró.
+ —Kael.
+Hubo un silencio breve. No incómodo. No cómodo. Exacto.
+—Quería confirmar —dijo él— que el traspaso de datos quedó completo.
+—Sí —respondió ella—. Todo está sincronizado.
+Kael asintió.
+ —Bien.
+Nira esperó. No porque esperara algo concreto, sino porque sabía que a veces las cosas tardaban un segundo más en decirse.
+Kael abrió la boca. La cerró.
+—Me alegra que…—empezó, y se detuvo—. Que todo esté estable.
+Nira sostuvo la mirada.
+ —A mí también.
+No era mentira.
+—Nos vemos —dijo él.
+—Nos vemos —respondió ella.
+Esta vez sí se despidieron.
+Caminaron en direcciones opuestas. Sin volver la cabeza.
+Esa noche, Kael cenó solo. Su padre llegó tarde, como siempre. Hablaron de temas generales. Ninguno mencionó lo que no había ocurrido.
+Nira llegó a casa a la hora exacta. Su madre no dijo nada. Eso fue peor que una discusión.
+Antes de dormir, ambos se miraron el meñique. No con alarma. Con curiosidad contenida. El color había cambiado apenas. Tan poco que podría ser una variación lumínica.
+Tan suficiente como para notarlo.
+Aelyon no exigía decisiones inmediatas.
+ Solo pedía continuidad.
+Y ellos, obedientes, siguieron adelante.
+`,
+
+18: `La grieta dejó de ser tema de conversación.
+No porque hubiera desaparecido, sino porque ya no exigía atención. Los informes hablaban de estabilidad prolongada, de integración progresiva en el sistema atmosférico. El Consejo archivó el caso con una eficiencia casi elegante. Aelyon había decidido que aquello no era una amenaza. Y cuando Aelyon decidía algo, el resto aprendía a no insistir.
+Kael firmó el cierre técnico sin dificultad. El documento era claro. Demasiado claro. No había ambigüedad, ni margen de interpretación. Solo una línea final que decía que el fenómeno no requería intervención futura.
+Intervención futura.
+ Como si algo así pudiera programarse.
+Guardó el archivo y dejó las manos quietas sobre la consola. No ajustó nada. No revisó nada más. El sistema no lo necesitaba. Y, por primera vez, él tampoco.
+La incomodidad llegó después. Tarde. Como llegan las cosas que uno posterga demasiado tiempo.
+En otro sector del laboratorio, Nira entregaba sus últimos registros de percepción ambiental. Eran breves, casi escuetos. Observaciones precisas, sin adornos. Nadie le pidió más detalle. Nadie parecía necesitarlo.
+—¿Todo bien? —preguntó Seris, sin mirarla del todo.
+—Sí —respondió ella—. Todo funciona.
+No era una evasión. Era una descripción.
+Salió antes de lo habitual. Caminó sin rumbo unos minutos, dejando que la ciudad la rodeara. Aelyon seguía siendo impecable. Las estructuras se adaptaban, los flujos se corregían solos. La perfección no había sufrido ningún rasguño visible.
+Eso era lo inquietante.
+Cuando pasó cerca del módulo alto, levantó la vista sin pensarlo. No vio a Kael. No se quedó esperando.
+El transporte llegó puntual. Se sentó junto a la ventana, como siempre. Observó su reflejo superpuesto con la ciudad. Durante un instante, no supo cuál de las dos imágenes era más real.
+Esa noche, Kael se detuvo frente al espejo más tiempo del necesario. El meñique seguía en ese tono indefinido, apenas desplazado del azul grisáceo habitual. No era una alerta. No era un error. Era una desviación mínima que no alcanzaba para justificar una corrección.
+Se vistió para dormir sin resolverlo.
+Nira, en su habitación, cerró uno de sus cuadernos sin escribir nada. No porque no tuviera qué decir, sino porque sabía que ponerlo en palabras lo volvería definitivo. Y aún no estaba lista para eso.
+Ambos durmieron con la sensación extraña de haber llegado a algún lugar sin saber exactamente cómo.
+Aelyon continuó funcionando.
+ La grieta permaneció en el cielo, discreta, integrada, casi hermosa.
+Y en algún punto entre lo que fue y lo que no se atrevieron a ser, algo quedó suspendido. No roto. No resuelto.
+Solo ahí.
+Esperando.`,
+
+19: `Aelyon no celebró nada.
+No hubo anuncios, ni luces distintas, ni ajustes visibles en el pulso del planeta. La estabilidad simplemente continuó, como si siempre hubiera sido así. Como si la grieta no hubiera existido nunca, o como si hubiera sido parte del diseño desde el principio.
+Eso era lo peligroso de Aelyon: su capacidad para volver extraordinario lo que debía incomodar.
+Kael retomó su rutina con una precisión casi idéntica a la anterior. Llegaba temprano. Revisaba informes. Ajustaba variables menores que no alteraban ningún resultado real. Nadie se lo pidió. Nadie lo cuestionó. El sistema aceptaba su necesidad de hacer algo con las manos.
+Émrik lo observó durante varios ciclos antes de decir nada.
+—El caso está cerrado —comentó una mañana, apoyado contra el marco del módulo—. Podrías dejar de mirarlo.
+Kael no levantó la vista.
+ —No lo estoy mirando. Estoy verificando consistencias a largo plazo.
+—Eso no existe —respondió Émrik—. Solo existe el ahora que decides no soltar.
+Kael apretó la mandíbula. No discutió. Discutir habría implicado reconocer que había algo personal en juego, y eso no entraba en ningún modelo aceptable.
+Nira, por su parte, empezó a llegar un poco más tarde.
+No lo suficiente como para llamar la atención, pero lo bastante como para notarlo ella misma. Sus observaciones seguían siendo acertadas, pero hablaba menos en las reuniones. No objetaba todo. Elegía cuándo hacerlo.
+—Te estás conteniendo —le dijo Liraen una tarde, sin acusación.
+—Estoy eligiendo —corrigió Nira—. No es lo mismo.
+En casa, su madre notó el cambio sin saber nombrarlo. Nira estaba más presente físicamente, pero menos accesible. Respondía. Ayudaba. Cumplía. Pero algo en su forma de moverse parecía siempre a punto de irse.
+—No todo tiene que estar bajo control —le dijo una noche, casi sin mirarla.
+Nira sostuvo la taza entre las manos.
+ —Eso lo dices porque nunca lo has perdido.
+No fue una pelea. Fue peor. Fue una frase que quedó flotando entre ambas sin posibilidad de corrección.
+En el laboratorio, Kael y Nira coincidieron frente a una consola secundaria. No era una reunión. No era un trabajo conjunto. Solo un cruce inevitable en un espacio demasiado ordenado.
+—Los registros finales están completos —dijo Kael, mirando la pantalla.
+—Lo sé —respondió Nira—. Ya los leí.
+Silencio.
+—La grieta no va a cambiar —añadió él—. Al menos, no dentro de los parámetros observables.
+—Nada cambia dentro de los parámetros —dijo ella—. Por eso no sirven para todo.
+Kael asintió. No como acuerdo. Como aceptación parcial.
+—¿Estás bien? —preguntó, finalmente.
+Nira lo miró. No a la consola. A él.
+—Estoy estable —dijo.
+No era una mentira. Tampoco era la verdad que él esperaba.
+Se separaron sin despedirse.
+Esa noche, Kael dejó el sistema encendido más tiempo del habitual. No para trabajar. Para escuchar el murmullo del planeta sin convertirlo en datos. No supo qué hacer con eso, pero no lo apagó.
+Nira salió a caminar sola. Observó la grieta desde un ángulo distinto, como si cambiar de perspectiva pudiera modificar algo interno. No pensó en Kael de forma directa. Pensó en lo fácil que era acostumbrarse a no decir.
+Aelyon seguía siendo perfecto.
+ Y ambos empezaban a entender que la perfección, cuando se vuelve costumbre, deja de ser refugio.
+Se convierte en frontera
+.`,
+
+20: `La grieta seguía ahí.
+No como una amenaza ni como un problema pendiente, sino como una presencia aceptada. El cielo de Aelyon había aprendido a sostenerla sin alterarse, y los Lunaris hicieron lo mismo. Ajustaron informes. Archivaron conclusiones. Le dieron un nombre técnico que ya nadie pronunciaba en voz alta.
+Cuando algo deja de ser urgente, se vuelve invisible.
+Kael entregó el último reporte sin ceremonia. Firmó con su identificador y cerró la interfaz con más cuidado del necesario, como si el sistema pudiera notar la diferencia. Nadie lo detuvo. Nadie lo felicitó. El equilibrio no necesitaba testigos.
+Al salir del laboratorio, no fue directo a su vehículo.
+Se quedó unos segundos de más mirando la plataforma del transporte público. La misma que había observado semanas atrás sin entender por qué. La misma que ahora reconocía como un punto de inflexión mínimo, ridículo, pero real.
+No subió al bus.
+Tampoco se fue.
+Nira llegó tarde ese día. No por descuido, sino por elección. Caminó despacio, como si el tiempo hubiera dejado de presionarla. Había aprendido que llegar a la hora exacta no siempre significaba estar presente.
+Lo vio antes de que él la viera a ella.
+Kael estaba de espaldas, quieto, observando el cielo fragmentado. No parecía tenso. Tampoco resuelto. Solo alguien que había dejado de corregir una ecuación imposible.
+—Sigues aquí —dijo Nira.
+Kael giró.
+ —No sabía si debía irme.
+Ella asintió. Entendía demasiado bien esa frase.
+Caminaron juntos sin hablar durante un tramo corto. No hacia un destino concreto. Solo alejándose del laboratorio, de las consolas, de los lugares donde todo debía tener sentido.
+—La grieta es estable —dijo Kael, casi por reflejo.
+—Lo sé.
+—No va a colapsar.
+—Nunca lo hizo.
+Kael respiró hondo.
+ —Aun así… nada volvió a ser exactamente igual.
+Nira lo miró de reojo.
+ —Eso tampoco es un error.
+Se detuvieron cerca de una superficie líquida. El suelo reflejaba sus siluetas deformadas, moviéndose apenas con cada vibración del planeta. No se tocaron. No lo necesitaban.
+—Pensé que entenderlo todo me iba a tranquilizar —dijo Kael—. Pero cuanto más claro era el modelo, más ruido hacía lo que quedaba fuera.
+Nira apoyó las manos en los bolsillos.
+ —Yo pensé que si no decía nada, nada cambiaría. Que el silencio me iba a proteger.
+Lo dijo sin dramatismo. Como quien enumera hechos inevitables.
+—¿Y lo hizo? —preguntó él.
+Nira tardó en responder.
+ —Me protegió de perderte —dijo—. Pero no de perderme un poco a mí.
+Kael bajó la mirada. No buscó datos. No buscó soluciones.
+—No sé qué somos —admitió—. Y no sé si sabría manejarlo aunque lo supiera.
+Nira sonrió apenas. Una sonrisa pequeña, cansada, honesta.
+ —Por primera vez, yo tampoco quiero ponerle nombre.
+El viento de Aelyon pasó entre ellos con su murmullo cristalino, constante, indiferente a las decisiones humanas. El planeta seguía respirando, con o sin explicaciones.
+No prometieron nada.
+ No se despidieron.
+Siguieron caminando, uno al lado del otro, aceptando que algunas cosas no se resuelven, solo se acompañan.
+Esa noche, frente a sus respectivos espejos, ambos notaron el cambio.
+No fue carmesí.
+ No fue inmediato.
+Solo una variación leve en el tono de sus meñiques. Algo difícil de definir. Un color que no figuraba en ningún registro oficial.
+Aelyon no reaccionó.
+El sistema no emitió alertas.
+Pero, por primera vez, el equilibrio no dependía de que todo estuviera bajo control.
+Y eso, aunque nadie lo dijera en voz alta, fue suficiente por ahora.`,
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  const menu = document.getElementById('menu');
+  const chapters = document.getElementById('chapters');
+  const reader = document.getElementById('reader');
+  const scrollPage = document.getElementById('scrollPage');
+
+  function showMenu() {
+    chapters.style.display = 'none';
+    reader.style.display = 'none';
+    menu.style.display = 'flex';
+  }
+
+  function showChapters() {
+    sendNotification('Abrir lista de capítulos');
+    menu.style.display = 'none';
+    reader.style.display = 'none';
+    chapters.style.display = 'block';
+  }
+
+  function openChapter(n) {
+    const text = chapterTexts[n] || ('Capítulo ' + n + ' — contenido no disponible.');
+    sendNotification('Abrir capítulo ' + n);
+    chapters.style.display = 'none';
+    menu.style.display = 'none';
+    scrollPage.textContent = text;
+    reader.style.display = 'block';
+    // ir al inicio del lector
+    reader.scrollTop = 0;
+  }
+
+  document.getElementById('btnLeer').addEventListener('click', showChapters);
+  document.getElementById('btnVolverMenu').addEventListener('click', showMenu);
+  document.getElementById('btnVolverCapitulos').addEventListener('click', () => {
+    sendNotification('Volver a capítulos');
+    reader.style.display = 'none';
+    chapters.style.display = 'block';
+  });
+
+  // Adjuntar eventos a cada capítulo
+  document.querySelectorAll('.chapter').forEach(el => {
+    el.addEventListener('click', () => {
+      const n = el.getAttribute('data-chapter');
+      openChapter(n);
+    });
+  });
+
+  // Habilitar botón de audiolibro si se desea (mantener comportamiento previo)
+  const audioBtn = document.querySelector('button[disabled]');
+  if (audioBtn) {
+    audioBtn.disabled = false;
+    audioBtn.addEventListener('click', () => {
+      sendNotification('Audiolibro');
+      alert('Audiolibro próximamente');
+    });
+  }
+
+  // Mostrar menú inicialmente
+  showMenu();
+});
+</script>
+</body>
+</html>
